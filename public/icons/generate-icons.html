@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><title>Generar iconos Nido</title></head>
+<body>
+<h2>Generador de iconos para Nido PWA</h2>
+<p>Haz clic en cada botón para descargar el ícono correspondiente.</p>
+<canvas id="c"></canvas><br><br>
+<button onclick="gen(192)">Descargar icon-192x192.png</button>
+<button onclick="gen(512)">Descargar icon-512x512.png</button>
+<button onclick="gen(180,'apple-touch-icon')">Descargar apple-touch-icon.png</button>
+<script>
+function gen(size, name) {
+  const canvas = document.getElementById('c');
+  canvas.width = size; canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  const g = ctx.createLinearGradient(0, 0, size, size);
+  g.addColorStop(0, '#f43f5e');
+  g.addColorStop(1, '#a855f7');
+  ctx.fillStyle = g;
+  ctx.beginPath();
+  ctx.roundRect(0, 0, size, size, size * 0.2);
+  ctx.fill();
+  ctx.fillStyle = 'white';
+  ctx.font = `bold ${size * 0.5}px Georgia, serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('N', size / 2, size / 2 + size * 0.02);
+  const a = document.createElement('a');
+  a.href = canvas.toDataURL('image/png');
+  a.download = (name || `icon-${size}x${size}`) + '.png';
+  a.click();
+}
+</script>
+</body>
+</html>

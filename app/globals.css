@@ -1,0 +1,199 @@
+@import "tailwindcss";
+
+@variant dark (&:where(.dark, .dark *));
+
+/* ═══════════════════════════════════════════════════════
+   NIDO DESIGN TOKENS
+   Generates bg-*, text-*, border-* Tailwind utilities
+════════════════════════════════════════════════════════ */
+@theme {
+  /* Accent — warm rose */
+  --color-nido-rose:           #dc6b84;
+  --color-nido-rose-deep:      #c24f6a;
+  --color-nido-rose-pale:      #f9dde4;
+
+  /* Background warmth */
+  --color-nido-blush:          #fdf0f3;
+
+  /* Secondary — soft lavender */
+  --color-nido-lavender:       #b8a9d9;
+  --color-nido-lavender-deep:  #9a8cbf;
+  --color-nido-lavender-pale:  #ede9f5;
+
+  /* Tertiary — sage green */
+  --color-nido-sage:           #6bab7e;
+  --color-nido-sage-deep:      #4e8a5f;
+  --color-nido-sage-pale:      #dff0e5;
+
+  /* Warm amber */
+  --color-nido-amber:          #d4945a;
+  --color-nido-amber-pale:     #fdebd4;
+
+  /* Text & surfaces */
+  --color-nido-ink:            #2c1a22;
+  --color-nido-mauve:          #8a6a75;
+  --color-nido-mist:           #c4a8b2;
+  --color-nido-cream:          #fefafb;
+  --color-nido-linen:          #f5ecef;
+}
+
+/* ── Dark mode token overrides ─────────────────────────
+   Because Tailwind v4 generates var() utilities, these
+   override automatically within .dark contexts.
+───────────────────────────────────────────────────────── */
+.dark {
+  --color-nido-ink:            #f0e8ec;
+  --color-nido-cream:          #251820;
+  --color-nido-linen:          #1f1318;
+  --color-nido-blush:          #1a1015;
+  --color-nido-rose-pale:      #3a2530;
+  --color-nido-lavender-pale:  #2d2540;
+  --color-nido-sage-pale:      #1e3028;
+  --color-nido-amber-pale:     #3a2518;
+  --color-nido-mist:           #7a6a72;
+  --color-nido-mauve:          #c4a8b2;
+}
+
+/* ═══════════════════════════════════════════════════════
+   FONTS
+   next/font injects --font-body + --font-heading on <html>
+════════════════════════════════════════════════════════ */
+html {
+  font-family: var(--font-body, 'DM Sans'), system-ui, -apple-system, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Serif display — apply with className="font-display" */
+.font-display {
+  font-family: var(--font-heading, 'Playfair Display'), Georgia, serif;
+}
+
+/* ═══════════════════════════════════════════════════════
+   PAGE BACKGROUND
+   Subtle warm gradients — not plain white
+════════════════════════════════════════════════════════ */
+body {
+  color: var(--color-nido-ink);
+  background-color: var(--color-nido-blush);
+  background-image:
+    radial-gradient(ellipse 65% 45% at 15% 0%,   rgba(220, 107, 132, 0.09) 0%, transparent 100%),
+    radial-gradient(ellipse 55% 45% at 85% 100%,  rgba(184, 169, 217, 0.08) 0%, transparent 100%);
+  min-height: 100dvh;
+}
+
+/* ═══════════════════════════════════════════════════════
+   SCROLLBAR
+════════════════════════════════════════════════════════ */
+::-webkit-scrollbar           { width: 3px; height: 3px; }
+::-webkit-scrollbar-track     { background: transparent; }
+::-webkit-scrollbar-thumb     {
+  background: linear-gradient(135deg, #dc6b84, #b8a9d9);
+  border-radius: 99px;
+}
+
+/* ═══════════════════════════════════════════════════════
+   SAFE AREA (mobile notch)
+════════════════════════════════════════════════════════ */
+.pb-safe {
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), 4px);
+}
+
+/* ═══════════════════════════════════════════════════════
+   ANIMATIONS
+════════════════════════════════════════════════════════ */
+@keyframes nido-fade-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+@keyframes nido-scale-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1);    }
+}
+
+.animate-fade-up  { animation: nido-fade-up  0.35s ease-out both; }
+.animate-scale-in { animation: nido-scale-in 0.22s ease-out both; }
+
+/* ═══════════════════════════════════════════════════════
+   CARD
+   Warm rose-tinted shadow instead of generic gray
+════════════════════════════════════════════════════════ */
+.card {
+  background: var(--color-nido-cream);
+  border-radius: 1.25rem;
+  border: 1px solid var(--color-nido-rose-pale);
+  box-shadow:
+    0 2px 16px -4px rgba(220, 107, 132, 0.1),
+    0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+/* ═══════════════════════════════════════════════════════
+   INPUT
+════════════════════════════════════════════════════════ */
+.input {
+  width: 100%;
+  border-radius: 0.875rem;
+  border: 1.5px solid var(--color-nido-rose-pale);
+  background: var(--color-nido-cream);
+  padding: 0.625rem 1rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--color-nido-ink);
+  font-family: inherit;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.input::placeholder { color: var(--color-nido-mist); }
+.input:focus {
+  border-color: #dc6b84;
+  box-shadow: 0 0 0 3px rgba(220, 107, 132, 0.12);
+}
+
+/* ═══════════════════════════════════════════════════════
+   BUTTONS
+════════════════════════════════════════════════════════ */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  background: #dc6b84;
+  color: #fff;
+  font-weight: 500;
+  font-size: 0.875rem;
+  font-family: inherit;
+  border-radius: 0.875rem;
+  padding: 0.625rem 1rem;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 2px 10px -2px rgba(220, 107, 132, 0.45);
+  transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+  white-space: nowrap;
+}
+.btn-primary:hover    { background: #c24f6a; box-shadow: 0 4px 14px -2px rgba(220, 107, 132, 0.5); }
+.btn-primary:active   { transform: scale(0.97); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  background: var(--color-nido-rose-pale);
+  color: #c24f6a;
+  font-weight: 500;
+  font-size: 0.875rem;
+  font-family: inherit;
+  border-radius: 0.875rem;
+  padding: 0.625rem 1rem;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease;
+  white-space: nowrap;
+}
+.btn-secondary:hover  { background: #f4c8d4; }
+.btn-secondary:active { transform: scale(0.97); }
+.dark .btn-secondary       { background: #3a2530; color: #dc6b84; }
+.dark .btn-secondary:hover { background: #4a3040; }

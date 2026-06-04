@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 import { Eye, EyeOff } from 'lucide-react'
+import Image from 'next/image'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -36,8 +37,8 @@ export default function LoginPage() {
       className="min-h-screen flex flex-col items-center justify-center bg-nido-blush px-6"
       style={{
         backgroundImage: [
-          'radial-gradient(ellipse 65% 55% at 50% 0%, rgba(220,107,132,0.13) 0%, transparent 70%)',
-          'radial-gradient(ellipse 50% 45% at 85% 100%, rgba(184,169,217,0.1) 0%, transparent 65%)',
+          'radial-gradient(ellipse 65% 55% at 50% 0%, rgba(196,120,106,0.13) 0%, transparent 70%)',
+          'radial-gradient(ellipse 50% 45% at 85% 100%, rgba(122,148,96,0.09) 0%, transparent 65%)',
         ].join(', '),
       }}
     >
@@ -45,16 +46,15 @@ export default function LoginPage() {
 
         {/* Logo */}
         <div className="flex flex-col items-center mb-10">
-          <div
-            className="w-20 h-20 rounded-[1.75rem] flex items-center justify-center mb-4"
-            style={{
-              background: 'linear-gradient(135deg, #dc6b84 0%, #9a8cbf 100%)',
-              boxShadow: '0 10px 40px -8px rgba(220,107,132,0.55)',
-            }}
-          >
-            <span className="font-display text-white text-4xl font-bold leading-none select-none">
-              N
-            </span>
+          <div className="w-32 h-32 mb-3 drop-shadow-sm">
+            <Image
+              src="/images/nido-logo.png"
+              alt="Nido"
+              width={128}
+              height={128}
+              className="w-full h-full object-contain"
+              priority
+            />
           </div>
           <h1 className="font-display text-3xl text-nido-rose tracking-wide">Nido</h1>
           <p className="text-sm text-nido-mauve mt-1.5">Tu espacio personal</p>

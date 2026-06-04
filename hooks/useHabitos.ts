@@ -134,6 +134,38 @@ export function useStreak(habitId: string) {
   })
 }
 
+export function useMonthHabitLogs() {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const start = new Date(today)
+  start.setDate(today.getDate() - 27)
+  const startStr = start.toISOString().split('T')[0]
+  const endStr   = today.toISOString().split('T')[0]
+
+  return useQuery({
+    queryKey: ['habit_logs_month', startStr],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('habit_logs')
+        .select('*')
+        .gte('date', startStr)
+        .lte('date', endStr)
+      if (error) throw error
+      return data as HabitLog[]
+    },
+  })
+}
+
+export function getLast28Dates(): string[] {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  return Array.from({ length: 28 }, (_, i) => {
+    const d = new Date(today)
+    d.setDate(today.getDate() - (27 - i))
+    return d.toISOString().split('T')[0]
+  })
+}
+
 export function getWeekDates(): string[] {
   const today = new Date()
   today.setHours(0, 0, 0, 0)

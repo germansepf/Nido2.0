@@ -76,6 +76,25 @@ export function useAddTransaction() {
   })
 }
 
+export function useYearSummary() {
+  const year = new Date().getFullYear()
+  return useQuery({
+    queryKey: ['transactions_year', year],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('transactions')
+        .select('amount, type')
+        .gte('date', `${year}-01-01`)
+        .lte('date', `${year}-12-31`)
+      if (error) throw error
+      const txs = data as { amount: number; type: string }[]
+      const income  = txs.filter(t => t.type === 'income').reduce((s, t) => s + Number(t.amount), 0)
+      const expense = txs.filter(t => t.type === 'expense').reduce((s, t) => s + Number(t.amount), 0)
+      return { income, expense, balance: income - expense }
+    },
+  })
+}
+
 export function useDeleteTransaction() {
   const qc = useQueryClient()
   return useMutation({

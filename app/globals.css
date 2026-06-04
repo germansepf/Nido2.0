@@ -152,6 +152,47 @@ body {
 }
 
 /* ═══════════════════════════════════════════════════════
+   EXTRA ANIMATIONS
+════════════════════════════════════════════════════════ */
+@keyframes nido-shimmer {
+  from { background-position: -200% center; }
+  to   { background-position: 200% center; }
+}
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-nido-linen) 25%,
+    var(--color-nido-cream) 50%,
+    var(--color-nido-linen) 75%
+  );
+  background-size: 200% auto;
+  animation: nido-shimmer 1.4s linear infinite;
+  border-radius: 0.75rem;
+}
+
+@keyframes nido-pop {
+  0%   { transform: scale(0.7); opacity: 0; }
+  70%  { transform: scale(1.08); }
+  100% { transform: scale(1); opacity: 1; }
+}
+.animate-pop { animation: nido-pop 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+
+@keyframes nido-slide-up {
+  from { transform: translateY(1.5rem); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+.animate-slide-up { animation: nido-slide-up 0.3s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+.card-lift {
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+.card-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px -6px rgba(196, 120, 106, 0.18), 0 2px 6px rgba(0,0,0,0.04);
+}
+.card-lift:active { transform: translateY(0px); }
+
+/* ═══════════════════════════════════════════════════════
    BUTTONS
 ════════════════════════════════════════════════════════ */
 .btn-primary {

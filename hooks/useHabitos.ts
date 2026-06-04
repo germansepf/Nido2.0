@@ -74,10 +74,13 @@ export function useAddHabit() {
   return useMutation({
     mutationFn: async (name: string) => {
       const { data: { user } } = await supabase.auth.getUser()
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('habits')
         .insert({ name, user_id: user!.id })
+        .select()
+        .single()
       if (error) throw error
+      return data as Habit
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ['habits'] }),
   })

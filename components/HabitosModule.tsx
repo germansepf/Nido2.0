@@ -1,12 +1,20 @@
 'use client'
 
 import { useState } from 'react'
-import { PlusCircleIcon, TrashIcon, FlameIcon, CalendarDotsIcon } from '@phosphor-icons/react'
+import { TrashIcon, FlameIcon, CalendarDotsIcon } from '@phosphor-icons/react'
 import {
   useHabits, useHabitLogs, useMonthHabitLogs, useToggleHabitLog,
   useAddHabit, useDeleteHabit, useStreak, getWeekDates, getLast28Dates,
 } from '@/hooks/useHabitos'
 import type { Habit, HabitLog } from '@/lib/types'
+import { EmojiPickerButton } from '@/components/EmojiPickerButton'
+
+const DEFAULT_HABIT_EMOJI = '🌱'
+
+function loadHabitEmojis(): Record<string, string> {
+  if (typeof window === 'undefined') return {}
+  try { return JSON.parse(localStorage.getItem('nido-habit-emojis') ?? '{}') } catch { return {} }
+}
 
 const DAY_NAMES = ['L', 'M', 'X', 'J', 'V', 'S', 'D']
 
@@ -151,8 +159,9 @@ function StreakBadge({ habitId }: { habitId: string }) {
 }
 
 // ─── Habit Row ────────────────────────────────────────────────
-function HabitRow({ habit, weekDates, logs, monthLogs, viewMode }: {
+function HabitRow({ habit, weekDates, logs, monthLogs, viewMode, emoji, onEmojiChange }: {
   habit: Habit; weekDates: string[]; logs: HabitLog[]; monthLogs: HabitLog[]; viewMode: 'week' | 'month'
+  emoji: string; onEmojiChange: (e: string) => void
 }) {
   const toggle   = useToggleHabitLog()
   const del      = useDeleteHabit()
@@ -161,31 +170,33 @@ function HabitRow({ habit, weekDates, logs, monthLogs, viewMode }: {
   const isDone   = !!todayLog
 
   return (
-    <div className={`card px-4 py-3 transition-all duration-300 ${isDone ? 'opacity-75' : ''}`}>
+    <div className={`card px-4 py-3 transition-all duration-300 ${isDone ? 'opacity-80' : ''}`}>
       <div className="flex items-center gap-3">
         <button
           onClick={() => toggle.mutate({ habitId: habit.id, date: today, isLogged: isDone, logId: todayLog?.id })}
-          className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-all duration-200 ${
+          className={`w-7 h-7 rounded-full border-2 flex items-center justify-center shrink-0 transition-all duration-200 ${
             isDone
               ? 'bg-nido-sage border-nido-sage shadow-[0_2px_6px_-1px_rgba(122,148,96,0.45)]'
               : 'border-nido-linen hover:border-nido-sage'
           }`}
         >
           {isDone && (
-            <svg viewBox="0 0 12 12" className="w-3 h-3 text-white animate-pop" fill="none" stroke="currentColor">
+            <svg viewBox="0 0 12 12" className="w-3.5 h-3.5 text-white animate-pop" fill="none" stroke="currentColor">
               <path d="M2 6l3 3 5-5" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           )}
         </button>
 
-        <span className={`flex-1 text-sm font-medium text-nido-ink transition-all duration-200 ${isDone ? 'line-through opacity-60' : ''}`}>
+        <EmojiPickerButton emoji={emoji} onSelect={onEmojiChange} size={20} />
+
+        <span className={`flex-1 text-sm font-medium text-nido-ink transition-all duration-200 ${isDone ? 'line-through opacity-50' : ''}`}>
           {habit.name}
         </span>
 
         <StreakBadge habitId={habit.id} />
 
         <button onClick={() => del.mutate(habit.id)} className="text-nido-mist hover:text-nido-rose transition-colors">
-          <TrashIcon className="w-3.5 h-3.5" />
+          <TrashIcon size={14} />
         </button>
       </div>
 
@@ -205,15 +216,25 @@ export function HabitosModule() {
   const { data: monthLogs = [] }         = useMonthHabitLogs()
   const addHabit = useAddHabit()
 
-  const [showForm,  setShowForm]  = useState(false)
-  const [newName,   setNewName]   = useState('')
-  const [viewMode,  setViewMode]  = useState<'week' | 'month'>('week')
+  const [showForm,     setShowForm]    = useState(false)
+  const [newName,      setNewName]     = useState('')
+  const [newEmoji,     setNewEmoji]    = useState(DEFAULT_HABIT_EMOJI)
+  const [viewMode,     setViewMode]    = useState<'week' | 'month'>('week')
+  const [habitEmojis,  setHabitEmojis] = useState<Record<string, string>>(loadHabitEmojis)
+
+  function saveHabitEmoji(habitId: string, emoji: string) {
+    const updated = { ...habitEmojis, [habitId]: emoji }
+    setHabitEmojis(updated)
+    localStorage.setItem('nido-habit-emojis', JSON.stringify(updated))
+  }
 
   async function handleAdd(e: React.FormEvent) {
     e.preventDefault()
     if (!newName.trim()) return
-    await addHabit.mutateAsync(newName.trim())
+    const habit = await addHabit.mutateAsync(newName.trim())
+    if (habit) saveHabitEmoji(habit.id, newEmoji)
     setNewName('')
+    setNewEmoji(DEFAULT_HABIT_EMOJI)
     setShowForm(false)
   }
 
@@ -225,7 +246,7 @@ export function HabitosModule() {
       <div className="flex items-center justify-between py-4">
         <h1 className="font-display text-2xl text-nido-ink">🌿 Hábitos</h1>
         <button onClick={() => setShowForm(!showForm)} className="btn-primary py-2 px-3">
-          <PlusCircleIcon className="w-4 h-4" />
+          <span className="text-base leading-none">✦</span>
           <span>Nuevo</span>
         </button>
       </div>
@@ -251,10 +272,17 @@ export function HabitosModule() {
       )}
 
       {showForm && (
-        <form onSubmit={handleAdd} className="card p-4 mb-4 flex gap-2 animate-slide-up">
-          <input className="input flex-1" placeholder="Nombre del hábito" value={newName}
-            onChange={e => setNewName(e.target.value)} autoFocus required />
-          <button type="submit" disabled={addHabit.isPending} className="btn-primary px-4">Agregar</button>
+        <form onSubmit={handleAdd} className="card p-4 mb-4 space-y-3 animate-slide-up">
+          <p className="text-[9.5px] font-bold uppercase tracking-widest text-nido-mist">Nuevo hábito</p>
+          <div className="flex items-center gap-3">
+            <EmojiPickerButton emoji={newEmoji} onSelect={setNewEmoji} size={26} />
+            <input className="input flex-1" placeholder="Nombre del hábito" value={newName}
+              onChange={e => setNewName(e.target.value)} autoFocus required />
+          </div>
+          <div className="flex gap-2">
+            <button type="button" onClick={() => setShowForm(false)} className="btn-secondary flex-1">Cancelar</button>
+            <button type="submit" disabled={addHabit.isPending} className="btn-primary flex-1">Agregar</button>
+          </div>
         </form>
       )}
 
@@ -272,7 +300,10 @@ export function HabitosModule() {
         <div className="space-y-2">
           {habits.map((habit, i) => (
             <div key={habit.id} className="animate-fade-up" style={{ animationDelay: `${i * 50}ms` }}>
-              <HabitRow habit={habit} weekDates={weekDates} logs={logs} monthLogs={monthLogs} viewMode={viewMode} />
+              <HabitRow habit={habit} weekDates={weekDates} logs={logs} monthLogs={monthLogs} viewMode={viewMode}
+                emoji={habitEmojis[habit.id] ?? DEFAULT_HABIT_EMOJI}
+                onEmojiChange={(e) => saveHabitEmoji(habit.id, e)}
+              />
             </div>
           ))}
         </div>

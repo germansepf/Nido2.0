@@ -25,10 +25,13 @@ export function useAddNote() {
   return useMutation({
     mutationFn: async (note: { title: string; body: string; tag: NoteTag }) => {
       const { data: { user } } = await supabase.auth.getUser()
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('notes')
         .insert({ ...note, user_id: user!.id })
+        .select()
+        .single()
       if (error) throw error
+      return data as Note
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ['notes'] }),
   })

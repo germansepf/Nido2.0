@@ -8,7 +8,6 @@ import { useMonthSummary } from '@/hooks/useFinanzas'
 import { useTasks, useEvents } from '@/hooks/useAgenda'
 import { useHabits, useHabitLogs, useStreak, getWeekDates } from '@/hooks/useHabitos'
 import { useTodayMood } from '@/hooks/useHumor'
-import { useEffect, useState } from 'react'
 
 const FRASES = [
   'Lo que cuidas, crece.',
@@ -46,11 +45,6 @@ function daysUntil(dateStr: string) {
   return Math.round((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
 }
 
-function nameFromEmail(email: string) {
-  const local = email.split('@')[0]
-  const name  = local.split(/[._\-0-9]/)[0]
-  return name.charAt(0).toUpperCase() + name.slice(1)
-}
 
 // ─── Streak badge for dashboard ───────────────────────────────
 function BestStreak({ habits }: { habits: { id: string }[] }) {
@@ -76,14 +70,7 @@ export default function DashboardPage() {
   const router   = useRouter()
   const supabase = createClient()
 
-  const [userEmail, setUserEmail] = useState('')
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      if (data.user?.email) setUserEmail(data.user.email)
-    })
-  }, [])
-
-  const userName = userEmail ? nameFromEmail(userEmail) : ''
+  const userName = 'Julieth'
   const frase    = FRASES[new Date().getDate() % FRASES.length]
 
   const month                   = getCurrentMonth()

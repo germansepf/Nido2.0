@@ -46,13 +46,14 @@ export default function LoginPage() {
 
         {/* Logo */}
         <div className="flex flex-col items-center mb-10">
-          <div className="w-32 h-32 mb-3 drop-shadow-sm">
+          <div className="w-36 h-36 mb-3">
             <Image
               src="/images/nido-logo.png"
               alt="Nido"
-              width={128}
-              height={128}
+              width={144}
+              height={144}
               className="w-full h-full object-contain"
+              style={{ mixBlendMode: 'multiply' }}
               priority
             />
           </div>

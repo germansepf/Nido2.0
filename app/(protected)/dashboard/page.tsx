@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { TrendingUp, CalendarDays, Repeat2, FileText, Smile, LogOut, ChevronRight, Flame } from 'lucide-react'
+import { SignOutIcon, FlameIcon, CalendarDotsIcon } from '@phosphor-icons/react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 import { useMonthSummary } from '@/hooks/useFinanzas'
@@ -53,17 +53,17 @@ function BestStreak({ habits }: { habits: { id: string }[] }) {
   if (max === 0) return null
   return (
     <span className="flex items-center gap-0.5 text-xs font-bold text-nido-amber">
-      <Flame className="w-3.5 h-3.5" />{max}
+      <FlameIcon size={14} weight="duotone" />{max}
     </span>
   )
 }
 
 const MODULES = [
-  { href: '/finanzas', icon: TrendingUp,  label: 'Finanzas', iconColor: 'text-nido-rose',          bgColor: 'bg-nido-rose-pale' },
-  { href: '/agenda',   icon: CalendarDays, label: 'Agenda',   iconColor: 'text-nido-lavender-deep', bgColor: 'bg-nido-lavender-pale' },
-  { href: '/habitos',  icon: Repeat2,      label: 'Hábitos',  iconColor: 'text-nido-sage-deep',     bgColor: 'bg-nido-sage-pale' },
-  { href: '/notas',    icon: FileText,     label: 'Notas',    iconColor: 'text-nido-amber',         bgColor: 'bg-nido-amber-pale' },
-  { href: '/humor',    icon: Smile,        label: 'Humor',    iconColor: 'text-nido-rose-deep',     bgColor: 'bg-nido-rose-pale' },
+  { href: '/finanzas', emoji: '💰', label: 'Finanzas', bgColor: 'bg-nido-rose-pale' },
+  { href: '/agenda',   emoji: '🗓️', label: 'Agenda',   bgColor: 'bg-nido-lavender-pale' },
+  { href: '/habitos',  emoji: '🌿', label: 'Hábitos',  bgColor: 'bg-nido-sage-pale' },
+  { href: '/notas',    emoji: '📒', label: 'Notas',    bgColor: 'bg-nido-amber-pale' },
+  { href: '/humor',    emoji: '🌸', label: 'Humor',    bgColor: 'bg-nido-rose-pale' },
 ]
 
 export default function DashboardPage() {
@@ -112,7 +112,7 @@ export default function DashboardPage() {
           )}
         </div>
         <button onClick={handleLogout} className="mt-1 p-2 rounded-xl text-nido-mist hover:text-nido-rose hover:bg-nido-rose-pale transition-all">
-          <LogOut className="w-4 h-4" />
+          <SignOutIcon size={16} />
         </button>
       </div>
 
@@ -129,7 +129,7 @@ export default function DashboardPage() {
               : <p className="text-sm text-nido-mauve">Sin nota hoy</p>
             }
           </div>
-          <ChevronRight className="w-4 h-4 text-nido-mist shrink-0" />
+          <span className="text-nido-mist shrink-0 text-base leading-none opacity-60">›</span>
         </Link>
       )}
 
@@ -140,7 +140,7 @@ export default function DashboardPage() {
           style={{ animationDelay: '80ms' }}
         >
           <div className="w-9 h-9 rounded-xl bg-nido-sage-pale flex items-center justify-center shrink-0">
-            <CalendarDays className="w-4 h-4 text-nido-sage-deep" />
+            <CalendarDotsIcon size={16} weight="duotone" className="text-nido-sage-deep" />
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-[9.5px] font-bold uppercase tracking-widest text-nido-mist mb-0.5">Próximo evento</p>
@@ -185,16 +185,16 @@ export default function DashboardPage() {
       {/* Módulos */}
       <p className="text-[9.5px] font-bold uppercase tracking-[0.14em] text-nido-mist mb-3">Módulos</p>
       <div className="grid grid-cols-2 gap-2.5">
-        {MODULES.map(({ href, icon: Icon, label, iconColor, bgColor }, i) => (
+        {MODULES.map(({ href, emoji, label, bgColor }, i) => (
           <Link key={href} href={href}
             className="card card-lift p-4 flex items-center gap-3 group animate-fade-up"
             style={{ animationDelay: `${i * 55}ms` }}
           >
             <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${bgColor} transition-transform duration-200 group-hover:scale-110`}>
-              <Icon className={`w-5 h-5 ${iconColor}`} strokeWidth={1.8} />
+              <span className="text-xl leading-none">{emoji}</span>
             </div>
             <span className="text-sm font-medium text-nido-ink flex-1">{label}</span>
-            <ChevronRight className="w-3.5 h-3.5 text-nido-mist opacity-0 group-hover:opacity-100 transition-opacity" />
+            <span className="text-base leading-none text-nido-mist opacity-0 group-hover:opacity-60 transition-opacity">›</span>
           </Link>
         ))}
       </div>

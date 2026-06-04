@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { PlusCircle, Trash2, TrendingUp, TrendingDown, Wallet, Target } from 'lucide-react'
+import { PlusCircleIcon, TrashIcon, TrendUpIcon, TrendDownIcon, WalletIcon, TargetIcon } from '@phosphor-icons/react'
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell,
   PieChart, Pie, Legend,
@@ -59,13 +59,13 @@ function SummaryCards({ month }: { month: string }) {
   return (
     <div className="grid grid-cols-3 gap-2 mb-4">
       {[
-        { icon: TrendingUp,   bg: 'bg-nido-sage-pale',     ic: 'text-nido-sage-deep',     label: 'Ingresos', value: summary.totalIncome,  color: 'text-nido-sage-deep' },
-        { icon: TrendingDown, bg: 'bg-nido-rose-pale',     ic: 'text-nido-rose',          label: 'Gastos',   value: summary.totalExpense, color: 'text-nido-rose' },
-        { icon: Wallet,       bg: 'bg-nido-lavender-pale', ic: 'text-nido-lavender-deep', label: 'Balance',  value: summary.balance,      color: summary.balance >= 0 ? 'text-nido-sage-deep' : 'text-nido-rose' },
+        { icon: TrendUpIcon,   bg: 'bg-nido-sage-pale',     ic: 'text-nido-sage-deep',     label: 'Ingresos', value: summary.totalIncome,  color: 'text-nido-sage-deep' },
+        { icon: TrendDownIcon, bg: 'bg-nido-rose-pale',     ic: 'text-nido-rose',          label: 'Gastos',   value: summary.totalExpense, color: 'text-nido-rose' },
+        { icon: WalletIcon,       bg: 'bg-nido-lavender-pale', ic: 'text-nido-lavender-deep', label: 'Balance',  value: summary.balance,      color: summary.balance >= 0 ? 'text-nido-sage-deep' : 'text-nido-rose' },
       ].map(({ icon: Icon, bg, ic, label, value, color }) => (
         <div key={label} className="card p-3 text-center animate-fade-up">
           <div className={`w-7 h-7 rounded-lg ${bg} flex items-center justify-center mx-auto mb-1.5`}>
-            <Icon className={`w-3.5 h-3.5 ${ic}`} />
+            <Icon size={15} weight="duotone" className={ic} />
           </div>
           <p className="text-[9px] font-bold uppercase tracking-widest text-nido-mist mb-0.5">{label}</p>
           <p className={`text-xs font-bold truncate ${color}`}>{formatCompact(value)}</p>
@@ -129,7 +129,7 @@ function SavingsGoal({ balance }: { balance: number }) {
         onClick={() => setEditing(true)}
         className="card-lift card w-full p-3 mb-4 flex items-center gap-2 text-nido-mist hover:text-nido-amber transition-colors"
       >
-        <Target className="w-4 h-4 shrink-0" />
+        <TargetIcon className="w-4 h-4 shrink-0" />
         <span className="text-xs">Establecer meta de ahorro mensual</span>
       </button>
     )
@@ -159,7 +159,7 @@ function SavingsGoal({ balance }: { balance: number }) {
     <div className="card p-4 mb-4 animate-fade-up">
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-1.5">
-          <Target className="w-3.5 h-3.5 text-nido-amber" />
+          <TargetIcon className="w-3.5 h-3.5 text-nido-amber" />
           <p className="text-[9.5px] font-bold uppercase tracking-widest text-nido-mist">Meta mensual</p>
         </div>
         <div className="flex items-center gap-2">
@@ -364,7 +364,7 @@ function TransactionList({ month }: { month: string }) {
                 {tx.type === 'income' ? '+' : '−'}{formatCompact(Number(tx.amount))}
               </span>
               <button onClick={() => deleteTx.mutate(tx.id)} className="text-nido-mist hover:text-nido-rose transition-colors shrink-0">
-                <Trash2 className="w-4 h-4" />
+                <TrashIcon size={16} />
               </button>
             </div>
           </div>
@@ -394,9 +394,9 @@ export function FinanzasModule() {
   return (
     <div className="animate-fade-up">
       <div className="flex items-center justify-between py-4">
-        <h1 className="font-display text-2xl text-nido-ink">Finanzas</h1>
+        <h1 className="font-display text-2xl text-nido-ink">💰 Finanzas</h1>
         <button onClick={() => setShowForm(!showForm)} className="btn-primary py-2 px-3">
-          <PlusCircle className="w-4 h-4" />
+          <PlusCircleIcon size={16} />
           <span>Agregar</span>
         </button>
       </div>

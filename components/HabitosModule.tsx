@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { PlusCircle, Trash2, Flame, CalendarDays } from 'lucide-react'
+import { PlusCircleIcon, TrashIcon, FlameIcon, CalendarDotsIcon } from '@phosphor-icons/react'
 import {
   useHabits, useHabitLogs, useMonthHabitLogs, useToggleHabitLog,
   useAddHabit, useDeleteHabit, useStreak, getWeekDates, getLast28Dates,
@@ -144,7 +144,7 @@ function StreakBadge({ habitId }: { habitId: string }) {
   if (streak === 0) return null
   return (
     <span className="flex items-center gap-0.5 text-xs font-bold text-nido-amber">
-      <Flame className="w-3.5 h-3.5" />
+      <FlameIcon size={14} weight="duotone" />
       {streak}
     </span>
   )
@@ -185,7 +185,7 @@ function HabitRow({ habit, weekDates, logs, monthLogs, viewMode }: {
         <StreakBadge habitId={habit.id} />
 
         <button onClick={() => del.mutate(habit.id)} className="text-nido-mist hover:text-nido-rose transition-colors">
-          <Trash2 className="w-3.5 h-3.5" />
+          <TrashIcon className="w-3.5 h-3.5" />
         </button>
       </div>
 
@@ -223,9 +223,9 @@ export function HabitosModule() {
   return (
     <div className="animate-fade-up">
       <div className="flex items-center justify-between py-4">
-        <h1 className="font-display text-2xl text-nido-ink">Hábitos</h1>
+        <h1 className="font-display text-2xl text-nido-ink">🌿 Hábitos</h1>
         <button onClick={() => setShowForm(!showForm)} className="btn-primary py-2 px-3">
-          <PlusCircle className="w-4 h-4" />
+          <PlusCircleIcon className="w-4 h-4" />
           <span>Nuevo</span>
         </button>
       </div>
@@ -243,7 +243,7 @@ export function HabitosModule() {
                   ? 'bg-nido-sage text-white shadow-[0_2px_8px_-2px_rgba(122,148,96,0.4)]'
                   : 'bg-nido-linen text-nido-mauve'
               }`}>
-              {mode === 'month' && <CalendarDays className="w-3.5 h-3.5" />}
+              {mode === 'month' && <CalendarDotsIcon size={14} />}
               {mode === 'week' ? 'Esta semana' : '28 días'}
             </button>
           ))}

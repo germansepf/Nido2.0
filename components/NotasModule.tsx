@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import { PlusCircle, Trash2, X, Search, Pin, PinOff, ChevronDown, ChevronUp } from 'lucide-react'
+import { PlusCircleIcon, TrashIcon, XIcon, MagnifyingGlassIcon, PushPinIcon, PushPinSlashIcon } from '@phosphor-icons/react'
 import { useNotes, useAddNote, useDeleteNote } from '@/hooks/useNotas'
 import type { NoteTag } from '@/lib/types'
 
@@ -31,7 +31,7 @@ function NoteDetail({ note, onClose }: {
             {cfg.label}
           </span>
           <button onClick={onClose} className="text-nido-mist hover:text-nido-mauve transition-colors">
-            <X className="w-5 h-5" />
+            <XIcon size={20} />
           </button>
         </div>
         <h2 className="text-lg font-semibold text-nido-ink mb-3">{note.title}</h2>
@@ -81,10 +81,10 @@ function NoteCard({ note, delay, pinned, onPin, onOpen }: {
           </div>
           <div className="flex gap-1.5 shrink-0 mt-0.5" onClick={e => e.stopPropagation()}>
             <button onClick={onPin} className="text-nido-mist hover:text-nido-amber transition-colors">
-              {pinned ? <PinOff className="w-3.5 h-3.5" /> : <Pin className="w-3.5 h-3.5" />}
+              {pinned ? <PushPinSlashIcon size={14} /> : <PushPinIcon size={14} />}
             </button>
             <button onClick={() => del.mutate(note.id)} className="text-nido-mist hover:text-nido-rose transition-colors">
-              <Trash2 className="w-3.5 h-3.5" />
+              <TrashIcon className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>
@@ -119,7 +119,7 @@ function NoteForm({ onClose }: { onClose: () => void }) {
         <div className="flex items-center justify-between">
           <p className="text-[9.5px] font-bold uppercase tracking-widest text-nido-mist">Nueva nota</p>
           <button type="button" onClick={onClose} className="text-nido-mist hover:text-nido-mauve transition-colors">
-            <X className="w-5 h-5" />
+            <XIcon size={20} />
           </button>
         </div>
 
@@ -192,16 +192,16 @@ export function NotasModule() {
   return (
     <div className="animate-fade-up">
       <div className="flex items-center justify-between py-4">
-        <h1 className="font-display text-2xl text-nido-ink">Notas</h1>
+        <h1 className="font-display text-2xl text-nido-ink">📒 Notas</h1>
         <button onClick={() => setShowForm(true)} className="btn-primary py-2 px-3">
-          <PlusCircle className="w-4 h-4" />
+          <PlusCircleIcon className="w-4 h-4" />
           <span>Nueva</span>
         </button>
       </div>
 
       {/* Search */}
       <div className="relative mb-3">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-nido-mist pointer-events-none" />
+        <MagnifyingGlassIcon size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-nido-mist pointer-events-none" />
         <input
           className="input pl-9"
           placeholder="Buscar en notas..."
@@ -210,7 +210,7 @@ export function NotasModule() {
         />
         {search && (
           <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-nido-mist hover:text-nido-mauve transition-colors">
-            <X className="w-4 h-4" />
+            <XIcon size={16} />
           </button>
         )}
       </div>

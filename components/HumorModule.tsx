@@ -130,7 +130,7 @@ export function HumorModule() {
   return (
     <div className="animate-fade-up">
       <div className="py-4">
-        <h1 className="font-display text-2xl text-nido-ink">Humor</h1>
+        <h1 className="font-display text-2xl text-nido-ink">🌸 Humor</h1>
         <p className="text-xs text-nido-mist mt-0.5">¿Cómo te sientes hoy?</p>
       </div>
 

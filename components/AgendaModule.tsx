@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { PlusCircle, Trash2, Check, Clock, CalendarPlus, Eye, EyeOff } from 'lucide-react'
+import { PlusCircleIcon, TrashIcon, CheckIcon, ClockIcon, CalendarPlusIcon, EyeIcon, EyeSlashIcon } from '@phosphor-icons/react'
 import {
   useTasks, useEvents, useAddTask, useToggleTask, useDeleteTask, useAddEvent, useDeleteEvent,
 } from '@/hooks/useAgenda'
@@ -47,7 +47,7 @@ function TaskItem({ task, accentColor }: { task: Task; accentColor: string }) {
               : 'border-nido-rose-pale hover:border-nido-rose'
           }`}
         >
-          {task.done && <Check className="w-3 h-3 text-white animate-pop" strokeWidth={3} />}
+          {task.done && <CheckIcon size={12} weight="bold" color="white" className="animate-pop" />}
         </button>
 
         <div className="flex-1 min-w-0">
@@ -56,13 +56,13 @@ function TaskItem({ task, accentColor }: { task: Task; accentColor: string }) {
           </p>
           {task.time && (
             <p className="text-xs text-nido-mist flex items-center gap-1 mt-0.5">
-              <Clock className="w-3 h-3" />{task.time}
+              <ClockIcon size={12} />{task.time}
             </p>
           )}
         </div>
 
         <button onClick={() => del.mutate(task.id)} className="text-nido-mist hover:text-nido-rose transition-colors shrink-0">
-          <Trash2 className="w-3.5 h-3.5" />
+          <TrashIcon className="w-3.5 h-3.5" />
         </button>
       </div>
     </div>
@@ -163,14 +163,14 @@ export function AgendaModule() {
   return (
     <div className="animate-fade-up">
       <div className="flex items-center justify-between py-4">
-        <h1 className="font-display text-2xl text-nido-ink">Agenda</h1>
+        <h1 className="font-display text-2xl text-nido-ink">🗓️ Agenda</h1>
         <div className="flex gap-2">
           <button onClick={() => openTaskForm('today')} className="btn-primary py-2 px-3">
-            <PlusCircle className="w-4 h-4" />
+            <PlusCircleIcon className="w-4 h-4" />
             <span className="text-xs">Tarea</span>
           </button>
           <button onClick={() => { setShowEventForm(!showEventForm); setShowTaskForm(false) }} className="btn-secondary py-2 px-3">
-            <CalendarPlus className="w-4 h-4" />
+            <CalendarPlusIcon className="w-4 h-4" />
             <span className="text-xs">Evento</span>
           </button>
         </div>
@@ -185,7 +185,7 @@ export function AgendaModule() {
           onClick={() => setShowDone(!showDone)}
           className="flex items-center gap-1.5 text-[10px] text-nido-mist hover:text-nido-mauve transition-colors mb-4"
         >
-          {showDone ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+          {showDone ? <EyeSlashIcon size={14} /> : <EyeIcon size={14} />}
           {showDone ? 'Ocultar' : 'Mostrar'} completadas ({doneTasks.length})
         </button>
       )}
@@ -287,7 +287,7 @@ export function AgendaModule() {
                           {days === 0 ? 'Hoy' : days === 1 ? 'Mañana' : `${days}d`}
                         </span>
                         <button onClick={() => del.mutate(ev.id)} className="text-nido-mist hover:text-nido-rose transition-colors shrink-0">
-                          <Trash2 className="w-3.5 h-3.5" />
+                          <TrashIcon className="w-3.5 h-3.5" />
                         </button>
                       </div>
                     </div>

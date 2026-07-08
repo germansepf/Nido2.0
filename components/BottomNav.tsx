@@ -5,10 +5,10 @@ import { usePathname } from 'next/navigation'
 import { HouseIcon, CurrencyCircleDollarIcon, CalendarDotsIcon, PlantIcon, NotePencilIcon, SmileyWinkIcon, BookOpenIcon } from '@phosphor-icons/react'
 
 const navItems = [
-  { href: '/dashboard', Icon: HouseIcon,                label: 'Inicio' },
   { href: '/finanzas',  Icon: CurrencyCircleDollarIcon, label: 'Finanzas' },
   { href: '/agenda',    Icon: CalendarDotsIcon,          label: 'Agenda' },
   { href: '/habitos',   Icon: PlantIcon,                 label: 'Hábitos' },
+  { href: '/dashboard', Icon: HouseIcon,                 label: 'Inicio' },
   { href: '/notas',     Icon: NotePencilIcon,            label: 'Notas' },
   { href: '/libros',    Icon: BookOpenIcon,              label: 'Libros' },
   { href: '/humor',     Icon: SmileyWinkIcon,            label: 'Humor' },

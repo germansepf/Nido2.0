@@ -133,10 +133,10 @@ function WaterCounter() {
     <div className="card px-4 py-3 mb-3 animate-fade-up">
       <div className="flex items-center justify-between mb-2">
         <p className="text-[9px] font-bold uppercase tracking-widest text-nido-mist">Agua hoy</p>
-        <span className="text-[10px] text-nido-mauve font-medium">{glasses}/8 vasos</span>
+        <span className="text-[10px] text-nido-mauve font-medium">{glasses}/4 vasos</span>
       </div>
       <div className="flex gap-1">
-        {Array.from({ length: 8 }, (_, i) => (
+        {Array.from({ length: 4 }, (_, i) => (
           <button key={i} onClick={() => tap(i)}
             className={`flex-1 py-1.5 rounded-lg text-sm transition-all duration-200 ${
               i < glasses ? 'bg-blue-100 scale-95' : 'bg-nido-linen text-nido-mist/30'

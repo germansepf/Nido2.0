@@ -54,6 +54,22 @@ const FRASES_POR_MOOD: Record<number, string[]> = {
   ],
 }
 
+const FRASES_SUEÑO_MAL = [
+  'Descansa cuando puedas, tu cuerpo lo necesita 🌙',
+  'Un día cansado sigue siendo un día tuyo 🤍',
+  'Sé gentil contigo, dormiste poco 🫂',
+  'La energía vuelve, no te exijas de más hoy 🌿',
+  'Incluso así, estás aquí. Eso vale 🪺',
+]
+
+const FRASES_SUEÑO_EXCELENTE = [
+  'Descansaste bien, ¡qué regalo! Aprovecha esa energía 🌟',
+  'Buen sueño, buen día. Lo construiste desde anoche ✨',
+  'Tu cuerpo agradeció el descanso 🌸',
+  'Empezar bien descansada lo cambia todo 🌤️',
+  'Energía recargada, lista para brillar 💛',
+]
+
 const FRASES_GENERALES = [
   'Lo que cuidas, crece.',
   'Un día a la vez, un hábito a la vez.',
@@ -324,7 +340,8 @@ export default function DashboardPage() {
   const { data: todayMood }      = useTodayMood()
   const { data: moodLogs = [] }  = useMoodLogs()
 
-  const { data: notes = [] } = useNotes()
+  const { data: notes = [] }    = useNotes()
+  const { data: todaySleep }    = useTodaySleep()
 
   const today           = new Date().toISOString().split('T')[0]
   const unlockedToday   = notes.filter(n => n.tag === 'capsula' && n.unlock_date === today)
@@ -333,9 +350,20 @@ export default function DashboardPage() {
   const nextEvent       = events[0] ?? null
 
   const moodValue      = todayMood ? (MOOD_VALUES[todayMood.mood] ?? 3) : null
-  const frase          = moodValue !== null
-    ? (() => { const arr = FRASES_POR_MOOD[moodValue]; return arr[new Date().getDate() % arr.length] })()
-    : FRASES_GENERALES[new Date().getDate() % FRASES_GENERALES.length]
+  const sleepQuality   = todaySleep?.quality ?? null
+  const dayIdx         = new Date().getDate()
+
+  const frase = (() => {
+    // Sueño malo → override siempre, es lo más importante para el cuerpo
+    if (sleepQuality === 1) return FRASES_SUEÑO_MAL[dayIdx % FRASES_SUEÑO_MAL.length]
+    // Sueño excelente + humor positivo → frase energizante
+    if (sleepQuality === 3 && moodValue !== null && moodValue >= 4) return FRASES_SUEÑO_EXCELENTE[dayIdx % FRASES_SUEÑO_EXCELENTE.length]
+    // Normal: basado en humor
+    if (moodValue !== null) { const arr = FRASES_POR_MOOD[moodValue]; return arr[dayIdx % arr.length] }
+    // Sin datos: frase general del día
+    return FRASES_GENERALES[dayIdx % FRASES_GENERALES.length]
+  })()
+
   const headerGradient = moodValue !== null ? (MOOD_GRADIENT[moodValue] ?? 'none') : 'none'
 
   // Resumen semanal

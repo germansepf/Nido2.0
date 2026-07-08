@@ -400,9 +400,19 @@ export default function DashboardPage() {
             <h1 className="font-display text-[2rem] leading-tight text-nido-ink mt-0.5">
               {getGreeting(userName)}
             </h1>
-            {daysSince !== null && daysSince > 0 && (
-              <span className="inline-flex items-center gap-1 text-[9.5px] text-nido-mist bg-nido-linen/80 px-2.5 py-0.5 rounded-full mt-1">
-                🪺 Día {daysSince} en tu nido
+            {daysSince !== null && (
+              <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full mt-1 font-medium transition-all ${
+                daysSince >= 100
+                  ? 'bg-nido-rose-pale text-nido-rose-deep text-[10px]'
+                  : daysSince >= 30
+                  ? 'bg-nido-amber-pale text-nido-amber text-[10px]'
+                  : daysSince >= 7
+                  ? 'bg-nido-linen text-nido-amber text-[9.5px]'
+                  : 'bg-nido-linen text-nido-mist text-[9.5px]'
+              }`}>
+                <span className={daysSince >= 7 ? 'animate-pop' : ''}>🔥</span>
+                {daysSince}
+                <span className="font-normal opacity-70">{daysSince === 1 ? 'día' : 'días'}</span>
               </span>
             )}
             {frase && (

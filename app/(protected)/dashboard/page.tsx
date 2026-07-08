@@ -325,7 +325,7 @@ export default function DashboardPage() {
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (user?.created_at) {
-        setDaysSince(Math.floor((Date.now() - new Date(user.created_at).getTime()) / 86400000))
+        setDaysSince(Math.floor((Date.now() - new Date(user.created_at).getTime()) / 86400000) + 1)
       }
     })
   }, [])

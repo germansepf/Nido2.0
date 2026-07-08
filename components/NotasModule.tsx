@@ -413,13 +413,13 @@ export function NotasModule() {
       </div>
 
       {/* Vista toggle */}
-      <div className="flex gap-2 mb-4">
+      <div className="flex gap-1 mb-4 bg-nido-linen p-1 rounded-xl">
         {(['lista', 'diario'] as const).map(mode => (
           <button key={mode} onClick={() => setViewMode(mode)}
-            className={`flex-1 py-2 rounded-xl text-xs font-medium transition-all duration-200 ${
+            className={`flex-1 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 ${
               viewMode === mode
-                ? 'bg-nido-rose text-white shadow-[0_2px_8px_-2px_rgba(196,120,106,0.4)]'
-                : 'bg-nido-linen text-nido-mauve'
+                ? 'bg-white text-nido-rose shadow-sm'
+                : 'text-nido-mist'
             }`}>
             {mode === 'lista' ? '≡ Lista' : '📖 Diario'}
           </button>

@@ -318,7 +318,7 @@ export default function DashboardPage() {
   const router   = useRouter()
   const supabase = createClient()
 
-  const userName = 'Julieth'
+  const userName = 'Majo'
   const [daysSince,      setDaysSince]      = useState<number | null>(null)
   const [showPomodoro,   setShowPomodoro]   = useState(false)
 

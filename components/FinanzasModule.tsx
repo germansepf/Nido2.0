@@ -12,6 +12,9 @@ import {
   useYearSummary,
   useAddTransaction,
   useDeleteTransaction,
+  useBudgets,
+  useUpsertBudget,
+  useDeleteBudget,
 } from '@/hooks/useFinanzas'
 import type { TransactionCategory, TransactionType } from '@/lib/types'
 
@@ -260,6 +263,108 @@ function FinanceChart({ month }: { month: string }) {
   )
 }
 
+// ─── Budget Section ───────────────────────────────────────────
+function BudgetSection({ month, byCategory }: { month: string; byCategory: Record<string, number> }) {
+  const { data: budgets = [] } = useBudgets(month)
+  const upsert = useUpsertBudget()
+  const del    = useDeleteBudget()
+
+  const [editing, setEditing]   = useState<string | null>(null)
+  const [input,   setInput]     = useState('')
+  const [showAdd, setShowAdd]   = useState(false)
+  const [addCat,  setAddCat]    = useState<TransactionCategory>('Otro')
+
+  function saveNew() {
+    const v = parseFloat(input)
+    if (isNaN(v) || v <= 0) return
+    upsert.mutate({ category: addCat, amount: v, month })
+    setInput(''); setShowAdd(false)
+  }
+
+  function saveEdit(id: string, category: string) {
+    const v = parseFloat(input)
+    if (!isNaN(v) && v > 0) upsert.mutate({ category, amount: v, month })
+    setEditing(null); setInput('')
+  }
+
+  if (budgets.length === 0 && !showAdd) {
+    return (
+      <button onClick={() => setShowAdd(true)}
+        className="card-lift card w-full p-3 mb-4 flex items-center gap-2 text-nido-mist hover:text-nido-amber transition-colors">
+        <span className="text-sm">🎯</span>
+        <span className="text-xs">Configurar presupuesto por categoría</span>
+      </button>
+    )
+  }
+
+  return (
+    <div className="card p-4 mb-4 animate-fade-up">
+      <div className="flex items-center justify-between mb-3">
+        <p className="text-[9px] font-bold uppercase tracking-widest text-nido-mist">Presupuesto</p>
+        <button onClick={() => setShowAdd(v => !v)} className="text-[9px] text-nido-mist hover:text-nido-amber transition-colors">
+          + Agregar
+        </button>
+      </div>
+
+      {showAdd && (
+        <div className="flex gap-2 mb-3 animate-fade-up">
+          <select className="input flex-1 text-xs py-1.5" value={addCat}
+            onChange={e => setAddCat(e.target.value as TransactionCategory)}>
+            {CATEGORIES.map(c => <option key={c} value={c}>{CATEGORY_META[c]?.icon} {c}</option>)}
+          </select>
+          <input type="number" className="input w-24 text-xs py-1.5" placeholder="Monto" value={input}
+            onChange={e => setInput(e.target.value)} />
+          <button onClick={saveNew} className="btn-primary py-1.5 px-3 text-xs">OK</button>
+        </div>
+      )}
+
+      <div className="space-y-2.5">
+        {budgets.map(b => {
+          const spent   = byCategory[b.category] ?? 0
+          const pct     = Math.min(100, b.amount > 0 ? Math.round((spent / b.amount) * 100) : 0)
+          const isWarn  = pct >= 80 && pct < 100
+          const isOver  = pct >= 100
+          const barColor = isOver ? 'bg-nido-rose' : isWarn ? 'bg-nido-amber' : 'bg-nido-sage'
+          const meta    = CATEGORY_META[b.category]
+          return (
+            <div key={b.id}>
+              <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-sm">{meta?.icon ?? '📦'}</span>
+                  <span className="text-[10px] font-medium text-nido-ink">{b.category}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  {editing === b.id ? (
+                    <>
+                      <input type="number" className="w-20 text-[9px] border border-nido-rose-pale rounded-lg px-1.5 py-0.5 bg-nido-cream focus:outline-none"
+                        value={input} onChange={e => setInput(e.target.value)} autoFocus />
+                      <button onClick={() => saveEdit(b.id, b.category)} className="text-[9px] text-nido-sage-deep">✓</button>
+                      <button onClick={() => { setEditing(null); setInput('') }} className="text-[9px] text-nido-mist">✕</button>
+                    </>
+                  ) : (
+                    <>
+                      <span className={`text-[9px] font-medium ${isOver ? 'text-nido-rose' : isWarn ? 'text-nido-amber' : 'text-nido-mist'}`}>
+                        {formatCompact(spent)} / {formatCompact(b.amount)}
+                      </span>
+                      <button onClick={() => { setEditing(b.id); setInput(String(b.amount)) }}
+                        className="text-[9px] text-nido-mist hover:text-nido-mauve">✎</button>
+                      <button onClick={() => del.mutate(b.id)} className="text-[9px] text-nido-mist hover:text-nido-rose">✕</button>
+                    </>
+                  )}
+                </div>
+              </div>
+              <div className="h-1.5 bg-nido-linen rounded-full overflow-hidden">
+                <div className={`h-full rounded-full transition-all duration-700 ${barColor}`} style={{ width: `${pct}%` }} />
+              </div>
+              {isOver && <p className="text-[8px] text-nido-rose mt-0.5">¡Presupuesto superado!</p>}
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
 // ─── Add Transaction Form ─────────────────────────────────────
 function TransactionForm({ onClose }: { onClose: () => void }) {
   const addTx = useAddTransaction()
@@ -269,12 +374,13 @@ function TransactionForm({ onClose }: { onClose: () => void }) {
     type: 'expense' as TransactionType,
     category: 'Otro' as TransactionCategory,
     date: new Date().toISOString().split('T')[0],
+    note: '',
   })
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!form.description || !form.amount) return
-    await addTx.mutateAsync({ ...form, amount: parseFloat(form.amount) })
+    await addTx.mutateAsync({ ...form, amount: parseFloat(form.amount), note: form.note.trim() || null })
     onClose()
   }
 
@@ -311,6 +417,9 @@ function TransactionForm({ onClose }: { onClose: () => void }) {
 
       <input className="input" type="date" value={form.date}
         onChange={e => setForm({ ...form, date: e.target.value })} required />
+
+      <input className="input" placeholder="Nota (opcional)" value={form.note}
+        onChange={e => setForm({ ...form, note: e.target.value })} />
 
       <div className="flex gap-2">
         <button type="button" onClick={onClose} className="btn-secondary flex-1">Cancelar</button>
@@ -359,6 +468,7 @@ function TransactionList({ month }: { month: string }) {
                 <p className="text-xs text-nido-mist mt-0.5">
                   {tx.category} · {new Date(tx.date + 'T12:00:00').toLocaleDateString('es', { day: 'numeric', month: 'short' })}
                 </p>
+                {tx.note && <p className="text-[9.5px] text-nido-mauve mt-0.5 italic truncate">{tx.note}</p>}
               </div>
               <span className={`text-sm font-semibold shrink-0 ${tx.type === 'income' ? 'text-nido-sage-deep' : 'text-nido-rose'}`}>
                 {tx.type === 'income' ? '+' : '−'}{formatCompact(Number(tx.amount))}
@@ -409,6 +519,7 @@ export function FinanzasModule() {
 
       <SummaryCards month={month} />
       <SavingsGoal balance={summary.balance} />
+      <BudgetSection month={month} byCategory={summary.byCategory} />
       <FinanceChart month={month} />
       <YearCard />
 

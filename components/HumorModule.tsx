@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts'
 import { useMoodLogs, useTodayMood, useUpsertMood } from '@/hooks/useHumor'
+import { useHabits, useMonthHabitLogs } from '@/hooks/useHabitos'
 
 const MOODS = [
   { emoji: '😊', label: 'Bien',    value: 5, strip: 'bg-nido-sage',     ring: 'ring-nido-sage',     bg: 'bg-nido-sage-pale' },
@@ -61,8 +62,10 @@ function MoodStats({ history }: { history: { mood: string; date: string }[] }) {
 
 // ─── Mood Trend Chart ─────────────────────────────────────────
 function MoodChart({ history }: { history: { mood: string; date: string }[] }) {
+  const [range, setRange] = useState<14 | 30>(14)
+
   const chartData = useMemo(() => {
-    return [...history].slice(0, 14).reverse().map(entry => {
+    return [...history].slice(0, range).reverse().map(entry => {
       const moodCfg = MOODS.find(m => m.emoji === entry.mood)
       return {
         date: new Date(entry.date + 'T12:00:00').toLocaleDateString('es', { day: 'numeric', month: 'short' }),
@@ -71,15 +74,34 @@ function MoodChart({ history }: { history: { mood: string; date: string }[] }) {
         label: moodCfg?.label ?? '',
       }
     })
-  }, [history])
+  }, [history, range])
 
   if (chartData.length < 2) return null
 
   return (
     <div className="card p-4 mb-5 animate-fade-up">
-      <p className="text-[9px] font-bold uppercase tracking-widest text-nido-mist mb-3">
-        Tendencia — últimos {chartData.length} días
-      </p>
+      <div className="flex items-center justify-between mb-3">
+        <p className="text-[9px] font-bold uppercase tracking-widest text-nido-mist">
+          Tendencia — últimos {chartData.length} días
+        </p>
+        {history.length > 14 && (
+          <div className="flex gap-1">
+            {([14, 30] as const).map(r => (
+              <button
+                key={r}
+                onClick={() => setRange(r)}
+                className={`text-[9px] font-semibold px-2 py-0.5 rounded-full transition-all ${
+                  range === r
+                    ? 'bg-nido-rose text-nido-cream'
+                    : 'text-nido-mist hover:text-nido-mauve'
+                }`}
+              >
+                {r}d
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
       <ResponsiveContainer width="100%" height={120}>
         <LineChart data={chartData} margin={{ top: 8, right: 8, left: -28, bottom: 0 }}>
           <XAxis dataKey="date" tick={{ fontSize: 9, fill: '#c0aa98', fontFamily: 'inherit' }} axisLine={false} tickLine={false} />
@@ -96,6 +118,67 @@ function MoodChart({ history }: { history: { mood: string; date: string }[] }) {
           />
         </LineChart>
       </ResponsiveContainer>
+    </div>
+  )
+}
+
+// ─── Mood ↔ Hábitos Correlación ───────────────────────────────
+function MoodHabitsCorrelation({ history }: { history: { mood: string; date: string }[] }) {
+  const { data: habits = [] }    = useHabits()
+  const { data: monthLogs = [] } = useMonthHabitLogs()
+
+  const correlationData = useMemo(() => {
+    if (habits.length === 0) return []
+    const last28Start = new Date()
+    last28Start.setDate(last28Start.getDate() - 27)
+    const startStr = last28Start.toISOString().split('T')[0]
+
+    return history
+      .filter(h => h.date >= startStr)
+      .map(entry => {
+        const logsForDay = monthLogs.filter(l => l.date === entry.date)
+        const isComplete = logsForDay.length >= habits.length
+        const moodVal    = MOODS.find(m => m.emoji === entry.mood)?.value ?? 3
+        return { isComplete, moodVal }
+      })
+  }, [history, habits, monthLogs])
+
+  const completeDays   = correlationData.filter(d => d.isComplete)
+  const incompleteDays = correlationData.filter(d => !d.isComplete)
+
+  if (completeDays.length < 2 || incompleteDays.length < 2) return null
+
+  const avgComplete   = completeDays.reduce((s, d) => s + d.moodVal, 0) / completeDays.length
+  const avgIncomplete = incompleteDays.reduce((s, d) => s + d.moodVal, 0) / incompleteDays.length
+  const diff          = avgComplete - avgIncomplete
+
+  const moodEmoji = (val: number) => MOODS.find(m => m.value === Math.round(val))?.emoji ?? '😐'
+  const moodLabel = (val: number) => MOODS.find(m => m.value === Math.round(val))?.label ?? 'Neutro'
+
+  return (
+    <div className="card p-4 mb-5 animate-fade-up">
+      <p className="text-[9px] font-bold uppercase tracking-widest text-nido-mist mb-3">Hábitos & humor</p>
+      <div className="grid grid-cols-2 gap-3 mb-3">
+        <div className="bg-nido-sage-pale rounded-2xl p-3 text-center">
+          <p className="text-[9px] text-nido-mist mb-1.5">Días completos</p>
+          <p className="text-2xl leading-none">{moodEmoji(avgComplete)}</p>
+          <p className="text-[9px] font-semibold text-nido-sage-deep mt-1">{moodLabel(avgComplete)}</p>
+          <p className="text-[9px] text-nido-mist">{completeDays.length} días</p>
+        </div>
+        <div className="bg-nido-amber-pale rounded-2xl p-3 text-center">
+          <p className="text-[9px] text-nido-mist mb-1.5">Días incompletos</p>
+          <p className="text-2xl leading-none">{moodEmoji(avgIncomplete)}</p>
+          <p className="text-[9px] font-semibold text-nido-amber mt-1">{moodLabel(avgIncomplete)}</p>
+          <p className="text-[9px] text-nido-mist">{incompleteDays.length} días</p>
+        </div>
+      </div>
+      <p className="text-xs text-nido-mauve text-center italic">
+        {Math.abs(diff) < 0.4
+          ? 'Tu humor es bastante estable independientemente de los hábitos 🌿'
+          : diff > 0
+          ? 'Los días que completás tus hábitos, tu humor tiende a ser más alto 💛'
+          : 'Tu humor no depende directamente de los hábitos ese día 🌙'}
+      </p>
     </div>
   )
 }
@@ -189,7 +272,10 @@ export function HumorModule() {
       {history.length > 0 && <MoodStats history={history} />}
 
       {/* Trend chart */}
-      {historyFiltered.length > 1 && <MoodChart history={historyFiltered} />}
+      {history.length > 1 && <MoodChart history={history} />}
+
+      {/* Correlación hábitos + humor */}
+      {historyFiltered.length >= 4 && <MoodHabitsCorrelation history={historyFiltered} />}
 
       {/* History */}
       <p className="text-[9.5px] font-bold uppercase tracking-widest text-nido-mist mb-3">

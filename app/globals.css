@@ -238,3 +238,51 @@ body {
 .btn-secondary:active { transform: scale(0.97); }
 .dark .btn-secondary       { background: #382018; color: #c4786a; }
 .dark .btn-secondary:hover { background: #482820; }
+
+/* ═══════════════════════════════════════════════════════
+   TIPTAP RICH EDITOR
+════════════════════════════════════════════════════════ */
+.tiptap-content { outline: none; }
+.tiptap-content p { margin-bottom: 0.35rem; }
+.tiptap-content p:last-child { margin-bottom: 0; }
+.tiptap-content strong { font-weight: 600; }
+.tiptap-content em { font-style: italic; }
+.tiptap-content s  { text-decoration: line-through; }
+.tiptap-content hr {
+  border: none;
+  border-top: 1px solid var(--color-nido-rose-pale);
+  margin: 0.75rem 0;
+}
+.tiptap-content mark {
+  background-color: var(--color-nido-amber-pale);
+  border-radius: 0.2rem;
+  padding: 0 0.1rem;
+}
+.tiptap-content ul:not([data-type="taskList"]) { list-style: disc; padding-left: 1.2rem; }
+.tiptap-content ol { list-style: decimal; padding-left: 1.2rem; }
+.tiptap-content li { margin-bottom: 0.1rem; }
+/* Task list (checklists) */
+.tiptap-content ul[data-type="taskList"] { list-style: none; padding: 0; }
+.tiptap-content ul[data-type="taskList"] > li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+.tiptap-content ul[data-type="taskList"] > li > label {
+  display: flex;
+  align-items: center;
+  margin-top: 0.1rem;
+  flex-shrink: 0;
+}
+.tiptap-content ul[data-type="taskList"] > li > label input[type="checkbox"] {
+  cursor: pointer;
+  accent-color: var(--color-nido-sage);
+  width: 0.95rem;
+  height: 0.95rem;
+}
+.tiptap-content ul[data-type="taskList"] > li > div { flex: 1; }
+.tiptap-content ul[data-type="taskList"] > li[data-checked="true"] > div > p {
+  text-decoration: line-through;
+  color: var(--color-nido-mist);
+}

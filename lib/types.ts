@@ -17,6 +17,16 @@ export interface Transaction {
   type: TransactionType
   category: TransactionCategory
   date: string
+  note: string | null
+  created_at: string
+}
+
+export interface Budget {
+  id: string
+  user_id: string
+  category: string
+  amount: number
+  month: string
   created_at: string
 }
 
@@ -52,10 +62,12 @@ export interface HabitLog {
   habit_id: string
   user_id: string
   date: string
+  note: string | null
+  count: number | null
   created_at: string
 }
 
-export type NoteTag = 'personal' | 'trabajo' | 'ideas' | 'salud'
+export type NoteTag = 'personal' | 'trabajo' | 'ideas' | 'salud' | 'capsula'
 
 export interface Note {
   id: string
@@ -63,6 +75,15 @@ export interface Note {
   title: string
   body: string | null
   tag: NoteTag
+  unlock_date: string | null
+  created_at: string
+}
+
+export interface SleepLog {
+  id: string
+  user_id: string
+  date: string
+  quality: number  // 1=mal, 2=bien, 3=muy bien
   created_at: string
 }
 
@@ -74,6 +95,30 @@ export interface MoodLog {
   mood: string
   note: string | null
   date: string
+  created_at: string
+}
+
+export type BookStatus = 'leyendo' | 'quiero_leer' | 'leido'
+
+export interface Book {
+  id: string
+  user_id: string
+  title: string
+  author: string | null
+  status: BookStatus
+  started_at: string | null
+  finished_at: string | null
+  favorite_quote: string | null
+  cover_emoji: string
+  created_at: string
+}
+
+export interface VocabWord {
+  id: string
+  user_id: string
+  word: string
+  definition: string | null
+  source: string | null
   created_at: string
 }
 

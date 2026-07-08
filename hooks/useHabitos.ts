@@ -69,6 +69,23 @@ export function useToggleHabitLog() {
   })
 }
 
+export function useUpdateHabitLog() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async ({ id, note, count }: { id: string; note?: string | null; count?: number | null }) => {
+      const patch: Record<string, unknown> = {}
+      if (note !== undefined) patch.note = note || null
+      if (count !== undefined) patch.count = count ?? null
+      const { error } = await supabase.from('habit_logs').update(patch).eq('id', id)
+      if (error) throw error
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['habit_logs'] })
+      qc.invalidateQueries({ queryKey: ['habit_logs_month'] })
+    },
+  })
+}
+
 export function useAddHabit() {
   const qc = useQueryClient()
   return useMutation({

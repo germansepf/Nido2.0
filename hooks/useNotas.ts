@@ -23,7 +23,7 @@ export function useNotes() {
 export function useAddNote() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async (note: { title: string; body: string; tag: NoteTag }) => {
+    mutationFn: async (note: { title: string; body: string; tag: NoteTag; unlock_date?: string | null }) => {
       const { data: { user } } = await supabase.auth.getUser()
       const { data, error } = await supabase
         .from('notes')

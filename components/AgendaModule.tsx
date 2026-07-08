@@ -1,11 +1,80 @@
 'use client'
 
-import { useState } from 'react'
-import { PlusCircleIcon, TrashIcon, CheckIcon, ClockIcon, CalendarPlusIcon, EyeIcon, EyeSlashIcon } from '@phosphor-icons/react'
+import { useState, useMemo } from 'react'
+import { PlusCircleIcon, TrashIcon, CheckIcon, ClockIcon, CalendarPlusIcon, EyeIcon, EyeSlashIcon, ListIcon, CalendarIcon } from '@phosphor-icons/react'
 import {
   useTasks, useEvents, useAddTask, useToggleTask, useDeleteTask, useAddEvent, useDeleteEvent,
 } from '@/hooks/useAgenda'
 import type { Task, TaskType } from '@/lib/types'
+
+const SHORT_DAYS = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom']
+
+function getWeekDays(offset = 0): Date[] {
+  const now = new Date()
+  const dow = now.getDay() === 0 ? 6 : now.getDay() - 1
+  const monday = new Date(now)
+  monday.setDate(now.getDate() - dow + offset * 7)
+  monday.setHours(0, 0, 0, 0)
+  return Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(monday)
+    d.setDate(monday.getDate() + i)
+    return d
+  })
+}
+
+function toDateStr(d: Date) {
+  return d.toISOString().split('T')[0]
+}
+
+// ─── Weekly View ──────────────────────────────────────────────
+function WeeklyView({ tasks, events }: { tasks: Task[]; events: ReturnType<typeof useEvents>['data'] }) {
+  const evList = events ?? []
+  const [weekOffset, setWeekOffset] = useState(0)
+  const days = useMemo(() => getWeekDays(weekOffset), [weekOffset])
+  const today = toDateStr(new Date())
+
+  return (
+    <div>
+      {/* Week navigation */}
+      <div className="flex items-center justify-between mb-3">
+        <button onClick={() => setWeekOffset(o => o - 1)} className="text-nido-mist hover:text-nido-rose px-2 py-1 text-xl leading-none">‹</button>
+        <p className="text-xs font-medium text-nido-mauve">
+          {days[0].toLocaleDateString('es', { day: 'numeric', month: 'short' })} — {days[6].toLocaleDateString('es', { day: 'numeric', month: 'short' })}
+        </p>
+        <button onClick={() => setWeekOffset(o => o + 1)} className="text-nido-mist hover:text-nido-rose px-2 py-1 text-xl leading-none">›</button>
+      </div>
+
+      {/* 7-column grid */}
+      <div className="grid grid-cols-7 gap-1 mb-1">
+        {days.map((d, i) => {
+          const ds       = toDateStr(d)
+          const isToday  = ds === today
+          const dayTasks = tasks.filter(t => t.type === 'today' && !t.done)
+          const dayEvs   = evList.filter(e => e.date === ds)
+          const hasTasks = i === 0 && dayTasks.length > 0
+          return (
+            <div key={ds} className={`rounded-xl p-1.5 min-h-20 flex flex-col gap-1 ${isToday ? 'bg-nido-rose-pale ring-1 ring-nido-rose/30' : 'bg-nido-linen/60'}`}>
+              <div className="text-center mb-0.5">
+                <p className={`text-[8px] font-bold uppercase ${isToday ? 'text-nido-rose' : 'text-nido-mist'}`}>{SHORT_DAYS[i]}</p>
+                <p className={`text-sm font-bold leading-none ${isToday ? 'text-nido-rose' : 'text-nido-ink'}`}>{d.getDate()}</p>
+              </div>
+              {dayEvs.map(e => (
+                <div key={e.id} className="bg-nido-sage text-white text-[7px] font-medium px-1.5 py-0.5 rounded-md leading-tight truncate">
+                  {e.text}
+                </div>
+              ))}
+              {hasTasks && (
+                <div className="bg-nido-rose/20 text-nido-rose-deep text-[7px] font-medium px-1.5 py-0.5 rounded-md leading-tight">
+                  {dayTasks.length} tarea{dayTasks.length > 1 ? 's' : ''}
+                </div>
+              )}
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
 
 function daysUntil(dateStr: string): number {
   const today = new Date()
@@ -139,13 +208,15 @@ function EventForm({ onClose }: { onClose: () => void }) {
 
 export function AgendaModule() {
   const { data: tasks = [], isLoading } = useTasks()
-  const { data: events = [] } = useEvents()
-  const del = useDeleteEvent()
+  const evQuery = useEvents()
+  const events  = evQuery.data ?? []
+  const del     = useDeleteEvent()
 
   const [showTaskForm,  setShowTaskForm]  = useState(false)
   const [showEventForm, setShowEventForm] = useState(false)
   const [taskFormType,  setTaskFormType]  = useState<TaskType>('today')
   const [showDone,      setShowDone]      = useState(false)
+  const [viewMode,      setViewMode]      = useState<'list' | 'week'>('list')
 
   const todayTasks   = tasks.filter(t => t.type === 'today')
   const pendingTasks = tasks.filter(t => t.type === 'pending')
@@ -164,7 +235,7 @@ export function AgendaModule() {
     <div className="animate-fade-up">
       <div className="flex items-center justify-between py-4">
         <h1 className="font-display text-2xl text-nido-ink">🗓️ Agenda</h1>
-        <div className="flex gap-2">
+        <div className="flex gap-1.5">
           <button onClick={() => openTaskForm('today')} className="btn-primary py-2 px-3">
             <PlusCircleIcon className="w-4 h-4" />
             <span className="text-xs">Tarea</span>
@@ -176,8 +247,26 @@ export function AgendaModule() {
         </div>
       </div>
 
+      {/* Vista toggle */}
+      <div className="flex gap-1.5 mb-4">
+        {([
+          { key: 'list', label: 'Lista',  icon: ListIcon },
+          { key: 'week', label: 'Semana', icon: CalendarIcon },
+        ] as const).map(({ key, label, icon: Icon }) => (
+          <button key={key} onClick={() => setViewMode(key)}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-medium transition-all ${
+              viewMode === key ? 'bg-nido-rose text-white shadow-sm' : 'bg-nido-linen text-nido-mauve'
+            }`}>
+            <Icon size={13} />
+            {label}
+          </button>
+        ))}
+      </div>
+
       {showTaskForm  && <TaskForm  defaultType={taskFormType} onClose={() => setShowTaskForm(false)} />}
       {showEventForm && <EventForm onClose={() => setShowEventForm(false)} />}
+
+      {viewMode === 'week' && <WeeklyView tasks={tasks} events={events} />}
 
       {/* Show/hide completed toggle */}
       {doneTasks.length > 0 && (
@@ -194,7 +283,7 @@ export function AgendaModule() {
         <div className="space-y-2">
           {[1,2,3].map(i => <div key={i} className="skeleton h-14" style={{ animationDelay: `${i * 80}ms` }} />)}
         </div>
-      ) : (
+      ) : viewMode === 'week' ? null : (
         <>
           {/* Hoy */}
           <section className="mb-5">
